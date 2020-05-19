@@ -6,7 +6,7 @@ require('dotenv').config();
 
 const items = require('./routes/api/items')
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
 app.use(express.json()); //bodyparser
 
