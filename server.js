@@ -4,11 +4,11 @@ const mongoose = require('mongoose');
 const app = express();
 require('dotenv').config();
 
-const items = require('./routes/api/items')
-
 const port = process.env.PORT || 3001;
 
 app.use(express.json()); //bodyparser
+
+const items = require('./routes/api/items')
 
 //db
 const db = process.env.MONGO_URI;
@@ -28,6 +28,7 @@ const connect = async () => {
 
 connect();
 mongoose.set('useFindAndModify', false);
+
 //routes
 app.use('/api/items', items)
 
