@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   Button,
   Modal,
@@ -9,72 +9,57 @@ import {
   Label,
   Input,
 } from 'reactstrap';
+import { ItemContext } from '../contexts/ItemContext';
+import axios from 'axios';
 
-import { connect } from 'react-redux';
+const ItemModal = () => {
+  const { dispatch } = useContext(ItemContext);
+  
+  const [modal, setModal] = useState(false);
+  const [name, setName] = useState({name: ''});
 
-import { addItem } from '../actions/itemActions';
-
-class ItemModal extends Component {
-  state = {
-    modal: false,
-    name: '',
+  const toggle = () => {
+    setModal(!modal);
   };
 
-  toggle = () => {
-    this.setState({
-      modal: !this.state.modal,
-    });
+  const onChange = (e) => {
+    setName({name: e.target.value});
   };
 
-  onChange = (e) => {
-    this.setState({ [e.target.name]: e.target.value });
-  };
-
-  onSubmit = e => {
+  const onSubmit = (e) => {
     e.preventDefault();
-    const newItem = {
-      name: this.state.name
-    }
+    console.log(name);
+    dispatch({type: 'ADD_ITEM', payload: name})
+    axios.get('api/items').then((res) => {
+      dispatch({type:'GET_ITEMS', payload: res.data})
+    });
+    toggle();
+  };
 
-    this.props.addItem(newItem);
-    this.toggle();
-  }
+  return (
+    <div>
+      <Button onClick={toggle}>Add Item</Button>
 
-  render() {
-    console.log(this.props)
-    return (
-      <div>
-        <Button onClick={this.toggle}>Add Item</Button>
+      <Modal isOpen={modal} toggle={toggle}>
+        <ModalHeader toggle={toggle}>Add To Shopping List</ModalHeader>
+        <ModalBody>
+          <Form onSubmit={(e) => onSubmit(e)}>
+            <FormGroup>
+              <Label for="item">Item</Label>
+              <Input
+                type="text"
+                name="name"
+                id="item"
+                placeholder="asdasdasd"
+                onChange={onChange}
+              />
+              <Button block>OK</Button>
+            </FormGroup>
+          </Form>
+        </ModalBody>
+      </Modal>
+    </div>
+  );
+};
 
-        <Modal isOpen={this.state.modal} toggle={this.toggle}>
-          <ModalHeader toggle={this.toggle}>Add To Shopping List</ModalHeader>
-          <ModalBody>
-            <Form onSubmit={this.onSubmit}>
-              <FormGroup>
-                <Label for="item">Item</Label>
-                <Input
-                  type="text"
-                  name="name"
-                  id="item"
-                  placeholder="asdasdasd"
-                  onChange={this.onChange}
-                />
-                <Button
-                  block
-                >OK</Button>
-              </FormGroup>
-            </Form>
-          </ModalBody>
-        </Modal>
-      </div>
-    );
-  }
-}
-
-const mapStateToProps = (stasdasdasdate) => {
-  return {
-    item: stasdasdasdate.item
-  }
-}
-
-export default connect(mapStateToProps, {addItem})(ItemModal);
+export default ItemModal;

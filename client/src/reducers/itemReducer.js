@@ -1,40 +1,16 @@
-import { v4 as uuidv4 } from 'uuid';
-import {
-  GET_ITEMS,
-  ADD_ITEM,
-  DELETE_ITEM,
-  ITEMS_LOADING,
-} from '../actions/types';
-
-const initialState = {
-  items: [],
-  loading: false,
-};
-
-export default function (state = initialState, action) {
+import axios from 'axios';
+export const itemReducer = (state, action) => {
   switch (action.type) {
-    case GET_ITEMS:
-      return {
-        ...state,
-        items: action.payload,
-        loading: false
-      };
-    case DELETE_ITEM:
-      return {
-        ...state,
-        items: state.items.filter((item) => item._id !== action.payload),
-      };
-    case ADD_ITEM:
-      return {
-        ...state,
-        items: [action.payload, ...state.items],
-      };
-    case ITEMS_LOADING:
-      return {
-        ...state,
-        loading: true
-      };
+    case 'GET_ITEMS':
+      return action.payload;
+
+    case 'ADD_ITEM':
+      axios.post('/api/items', action.payload);
+      
+    case 'DELETE_ITEM':
+      axios.delete(`/api/items/` + action.id);
+      
     default:
       return state;
   }
-}
+};

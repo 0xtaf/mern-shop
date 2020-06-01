@@ -1,33 +1,32 @@
-import React, { Component } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Container, ListGroup, ListGroupItem, Button } from 'reactstrap';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import { connect } from 'react-redux';
-import { getItems, deleteItem } from '../actions/itemActions';
-import PropTypes from 'prop-types';
+import { ItemContext } from '../contexts/ItemContext';
+import axios from 'axios';
 
-class ShoppingList extends Component {
-  componentDidMount() {
-    this.props.getItems();
+const ShoppingList = () => {
+  const { items, dispatch } = useContext(ItemContext);
+
+  const onDeleteClick = (id) => {
+    dispatch({type: 'DELETE_ITEM', id: id})
+    axios.get('api/items').then((res) => {
+      dispatch({type:'GET_ITEMS', payload: res.data})
+    });
   }
 
-  onDeleteClick = (id) => {
-    this.props.deleteItem(id);
-  }
-
-  render() {
-    const { items } = this.props.item;
-    return (
-      <Container>
-        <ListGroup>
-          <TransitionGroup className="shopping-list">
-            {items.map(({ _id, name }) => (
+  return (
+    <Container>
+      <ListGroup>
+        <TransitionGroup className="shopping-list">
+          {items ? (
+            items.map(({ _id, name }) => (
               <CSSTransition key={_id} timeout={500} classNames="fade">
                 <ListGroupItem>
                   <Button
                     className="remove-btn"
                     color="danger"
                     size="sm"
-                    onClick={this.onDeleteClick.bind(this, _id)}
+                    onClick={() => onDeleteClick(_id)}
                   >
                     &times;
                   </Button>
@@ -35,21 +34,14 @@ class ShoppingList extends Component {
                   {name}
                 </ListGroupItem>
               </CSSTransition>
-            ))}
-          </TransitionGroup>
-        </ListGroup>
-      </Container>
-    );
-  }
-}
-
-ShoppingList.propTypes = {
-  getItems: PropTypes.func.isRequired,
-  item: PropTypes.object.isRequired,
+            ))
+          ) : (
+            <div>Loading...</div>
+          )}
+        </TransitionGroup>
+      </ListGroup>
+    </Container>
+  );
 };
 
-const mapStateToProps = (state) => ({
-  item: state.item,
-});
-
-export default connect(mapStateToProps, { getItems, deleteItem })(ShoppingList);
+export default ShoppingList;
